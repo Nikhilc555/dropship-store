@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model StoreConfig {
+  id                      String   @id @default("default")
+  storeName               String   @default("AURA SUPPLY")
+  tagline                 String   @default("Elevated Essentials for Modern Living")
+  nichePreset             String   @default("smart-desk")
+  announcementText        String   @default("🇮🇳 Free Express India Delivery on Prepaid/UPI Orders + Global Shipping Available!")
+  primaryColor            String   @default("#4f46e5")
+  usdExchangeRate         Float    @default(0.012) // 1 INR = 0.012 USD (~83.3 INR/USD)
+  defaultMarkupMultiplier Float    @default(2.4)
+  autoFulfillOrders       Boolean  @default(true)
+  cjApiKey                String   @default("")
+  shiprocketToken         String   @default("")
+  updatedAt               DateTime @updatedAt
+}
+
+model Product {
+  id                String   @id @default(cuid())
+  slug              String   @unique
+  title             String
+  subtitle          String
+  description       String
+  category          String
+  niche             String
+  image             String
+  galleryJson       String
+  supplierCostInr   Float
+  retailPriceInr    Float
+  compareAtPriceInr Float
+  supplierName      String   // e.g. "CJdropshipping (IN Warehouse)", "Qikink India", "CJ Global (US/CN)"
+  supplierProductId String
+  supplierSku       String
+  warehouseCountry  String   // "IN" | "US" | "CN"
+  deliveryDaysIndia String   // e.g. "3-5 Days (Shiprocket Express)"
+  deliveryDaysGlobal String  // e.g. "7-12 Days (CJPacket Air)"
+  stockCount        Int
+  rating            Float    @default(4.8)
+  reviewsCount      Int      @default(42)
+  isFeatured        Boolean  @default(false)
+  featuresJson      String
+  lastSyncedAt      DateTime @default(now())
+  createdAt         DateTime @default(now())
+}
+
+model Order {
+  id                String   @id @default(cuid())
+  orderNumber       String   @unique
+  customerName      String
+  customerEmail     String
+  customerPhone     String
+  shippingAddress   String
+  city              String
+  state             String
+  pincode           String
+  country           String   // "IN" | "US" | "UK" | "AE" | "CA"
+  currency          String   // "INR" | "USD"
+  itemsJson         String
+  subtotalInr       Float
+  discountInr       Float
+  shippingInr       Float
+  totalAmountInr    Float
+  supplierCostTotal Float
+  netProfitInr      Float
+  paymentMethod     String   // "UPI_RAZORPAY" | "CARD_STRIPE" | "COD_INDIA"
+  paymentStatus     String   // "PAID" | "COD_VERIFIED" | "PENDING"
+  fulfillmentStatus String   // "ORDER_CONFIRMED" | "DISPATCHED_TO_SUPPLIER" | "PACKAGED_AT_WAREHOUSE" | "IN_TRANSIT" | "DELIVERED"
+  supplierOrderId   String?
+  trackingNumber    String?
+  courierName       String?
+  referralCodeUsed  String?
+  createdAt         DateTime @default(now())
+}
+
+model ReferralAffiliate {
+  id                String   @id @default(cuid())
+  code              String   @unique
+  influencerName    String
+  platform          String   // "Instagram Reels" | "YouTube Shorts" | "Customer Referral"
+  discountPercent   Float
+  commissionPercent Float
+  clicks            Int      @default(0)
+  totalOrders       Int      @default(0)
+  totalEarningsInr  Float    @default(0)
+}
+
+model AbandonedCart {
+  id             String   @id @default(cuid())
+  customerName   String
+  customerPhone  String
+  customerEmail  String
+  country        String
+  itemsSummary   String
+  cartTotalInr   Float
+  recoveryStatus String   // "PENDING" | "WHATSAPP_SENT" | "RECOVERED"
+  createdAt      DateTime @default(now())
+}
+
